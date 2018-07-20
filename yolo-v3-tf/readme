@@ -61,8 +61,6 @@ yolo v3 的tf实现
         		# box_confidence: [None, 13, 13, 3, 1] 			：13*13*1
         		# box_class_probs: [None, 13, 13, 3, 20] 		：13*13*20
 
-        		？为何尺度越细的 anchor box 却越大？后续打印调试
-
         	preprocess_true_boxes
 
         		处理标注的框
