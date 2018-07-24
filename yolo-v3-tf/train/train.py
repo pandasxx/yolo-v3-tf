@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from data_pipeline import data_pipeline
 from config import cfg
-
+ 
 file_path = 'trainval0712.tfrecords'
 imgs, true_boxes = data_pipeline(file_path, cfg.batch_size)
 
