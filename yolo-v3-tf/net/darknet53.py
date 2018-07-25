@@ -87,6 +87,8 @@ class Darknet53:
     def build(self, img, istraining, decay_bn=0.99):
         self.phase_train = istraining
         self.decay_bn = decay_bn
+        print("darknet")
+        print(img.shape)
         self.conv0 = self.conv_layer(bottom=img, size=3, stride=1, in_channels=3,   # 416x3
                                      out_channels=32, name='conv_0')                # 416x32
         self.conv1 = self.conv_layer(bottom=self.conv0, size=3, stride=2, in_channels=32,

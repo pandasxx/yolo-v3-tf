@@ -28,7 +28,7 @@ __C.train.lr_steps = [40000, 45000]
 __C.train.lr_scales = [.1, .1]
 __C.train.max_truth = 30
 __C.train.mask = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
-__C.train.image_resized = 384   # { 320, 352, ... , 608} multiples of 32
+__C.train.image_resized = 608   # { 320, 352, ... , 608} multiples of 32
 __C.train.random = 0
 
 #
@@ -46,4 +46,14 @@ __C.preprocess.random = 1
 # image format
 #
 __C.data = edict()
-__C.data.img_size = [608, 608]
+__C.data.img_size = [608, 608, 3]
+
+#
+# file path
+#
+
+__C.path = edict()
+__C.path.train_data_path = "enhancement01_608.tfrecords"
+__C.path.darknet_weights_path = "../darknet53.conv.74.npz"
+__C.path.ckpt_dir = './ckpt/'
+
