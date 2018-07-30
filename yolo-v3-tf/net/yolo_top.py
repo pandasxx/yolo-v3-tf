@@ -13,7 +13,7 @@ class yolov3:
         self.decay_bn = decay_bn
         self.img_shape = tf.shape(self.img)
         with tf.variable_scope("Feature_Extractor"):
-            feature_extractor = Darknet53('darknet53.conv.74.npz', scratch=cfg.scratch)
+            feature_extractor = Darknet53(cfg.path.darknet_weights_path, scratch=cfg.scratch)
             self.feats52 = feature_extractor.build(self.img, self.istraining, self.decay_bn)
         with tf.variable_scope("Head"):
             head = yolo_head(self.istraining)

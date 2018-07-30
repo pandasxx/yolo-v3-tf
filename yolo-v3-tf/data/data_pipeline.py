@@ -12,7 +12,7 @@ def parser(example):
     coord = tf.reshape(coord, [30, 5])
 
     img = tf.decode_raw(feats['img'], tf.float32)
-    img = tf.reshape(img, [416, 416, 3])
+    img = tf.reshape(img, cfg.data.img_size)
     img = tf.image.resize_images(img, [cfg.train.image_resized, cfg.train.image_resized])
     rnd = tf.less(tf.random_uniform(shape=[], minval=0, maxval=2), 1)
 

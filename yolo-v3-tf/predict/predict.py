@@ -1,43 +1,71 @@
-from yolo_top import yolov3
+from net.yolo_top import yolov3
 import numpy as np
 import tensorflow as tf
-from config import cfg
+from net.config import cfg
 from PIL import Image, ImageDraw, ImageFont
-from draw_boxes import draw_boxes
+from predict.draw_box import draw_boxes
 import matplotlib.pyplot as plt
+import os
 
+class YOLO_PREDICT:
+    
+    def __init__(self, gpu = "0"):
+        
+        os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+        
+        # result
+        self.boxes_dict = {}
+        self.scores_dict = {}
+        self.classes_dict = {}
+        
+        # clear graph
+        tf.reset_default_graph()
+        
+        # now, in predict mode
+        self.istraining = tf.constant(False, tf.bool)
+        # which size is the training size
+        self.img_size = cfg.data.img_size
+        # 
+        self.batch_size = cfg.predict.batch_size
+        self.scratch = cfg.predict.scratch
+        
+        self.build_model()
 
-# IMG_ID ='008957'
-# image_test = Image.open('/home/raytroop/Dataset4ML/VOC2007/VOCdevkit/VOC2007/JPEGImages/{}.jpg'.format(IMG_ID))
-image_test = Image.open('image/dog.jpg')
-resized_image = image_test.resize((416, 416), Image.BICUBIC)
-image_data = np.array(resized_image, dtype='float32')
+    def build_model(self):
+        
+        self.img_hw = tf.placeholder(dtype=tf.float32, shape=[2])
+        self.imgs_holder = tf.placeholder(tf.float32, 
+                                          shape = [None,
+                                                   self.img_size[0], 
+                                                   self.img_size[1], 
+                                                   self.img_size[2]])
+        
+        self.model = yolov3(self.imgs_holder, None, self.istraining)
+        self.boxes, self.scores, self.classes = self.model.pedict(self.img_hw,
+                                                                  iou_threshold = cfg.predict.iou_thresh,
+                                                                  score_threshold = cfg.predict.score_thresh)
+        self.saver = tf.train.Saver()
+        self.ckpt_dir = cfg.path.ckpt_dir
+        
+    def predict_imgs(self, image_data, img_id_list):
 
-imgs_holder = tf.placeholder(tf.float32, shape=[1, 416, 416, 3])
-istraining = tf.constant(False, tf.bool)
-cfg.batch_size = 1
-cfg.scratch = True
+        with tf.Session() as sess:
+            ckpt = tf.train.get_checkpoint_state(self.ckpt_dir)
+            self.saver.restore(sess, ckpt.model_checkpoint_path)
+            
+            for i, single_image_data in enumerate(image_data):
+                boxes_, scores_, classes_ = sess.run([self.boxes, self.scores, self.classes],
+                                                     feed_dict={
+                                                        self.img_hw:
+                                                         [self.img_size[1], 
+                                                          self.img_size[0]],
+                                                        self.imgs_holder: 
+                                                         np.reshape(single_image_data / 255, 
+                                                            [1, 
+                                                             self.img_size[0], 
+                                                             self.img_size[1], 
+                                                             self.img_size[2]])})
 
-model = yolov3(imgs_holder, None, istraining)
-img_hw = tf.placeholder(dtype=tf.float32, shape=[2])
-boxes, scores, classes = model.pedict(img_hw, iou_threshold=0.5, score_threshold=0.5)
-
-saver = tf.train.Saver()
-ckpt_dir = './ckpt/'
-
-with tf.Session() as sess:
-    ckpt = tf.train.get_checkpoint_state(ckpt_dir)
-    saver.restore(sess, ckpt.model_checkpoint_path)
-    boxes_, scores_, classes_ = sess.run([boxes, scores, classes],
-                                         feed_dict={
-                                                    img_hw: [image_test.size[1], image_test.size[0]],
-                                                    imgs_holder: np.reshape(image_data / 255, [1, 416, 416, 3])})
-
-    image_draw = draw_boxes(np.array(image_test, dtype=np.float32) / 255, boxes_, classes_, cfg.names, scores=scores_)
-    fig = plt.figure(frameon=False)
-    ax = plt.Axes(fig, [0, 0, 1, 1])
-    ax.set_axis_off()
-    fig.add_axes(ax)
-    plt.imshow(image_draw)
-    fig.savefig('prediction.jpg')
-    plt.show()
+                self.boxes_dict[img_id_list[i]] = boxes_
+                self.scores_dict[img_id_list[i]] = scores_
+                self.classes_dict[img_id_list[i]] = classes_
