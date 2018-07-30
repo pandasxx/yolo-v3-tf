@@ -1,0 +1,30 @@
+how to use
+
+1 train
+	
+	train data and pretrain weights file
+	refer dataset-create.ipynb
+
+	config param
+	refer net/config.py
+
+	refer yolo_train_sample0.ipython
+
+		1) from train.train import *
+		2) model_train = YOLO_TRAIN(cfg.path.train_data_path, gpu = "0")
+		3) model_train.build_model()
+		4) model_train.train_model()
+
+2 predict
+	refer yolo_predict_sample0.ipython
+
+		1) from predict.predict import *
+		2) model_predict = YOLO_PREDICT(gpu = "0")
+		3) model_predict.predict_imgs(image_data, img_id_list)
+			input should be a np array includ img data, and a img id list
+			out are 3 dicts, include box, score and class 
+
+		4) result
+			model_predict.boxes_dict[img_id]
+			model_predict.scores_dict[img_id]
+   			model_predict.classes_dict[img_id]
