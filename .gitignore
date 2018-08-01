@@ -1,0 +1,7 @@
+/*/ckpt
+/*/font
+/*/.ipynb_checkpoints
+*.pyc
+*.npz
+*.jpg
+*.tfrecords
