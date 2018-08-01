@@ -44,9 +44,9 @@ class YOLO_TRAIN:
         self.global_step = tf.Variable(0, trainable=False)
         # lr = tf.train.exponential_decay(0.0001, global_step=global_step, decay_steps=2e4, decay_rate=0.1)
         self.lr = tf.train.piecewise_constant(self.global_step, 
-                                              self.lr_steps, 
+                                              self.lr_steps,
                                               self.lr_scales)
-    
+
         # get optimizer
         self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
         # optimizer = tf.train.MomentumOptimizer(learning_rate=lr, momentum=0.9)

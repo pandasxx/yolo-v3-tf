@@ -17,7 +17,7 @@ class Darknet53:
         self.avg_var = []
         self.scratch = scratch
 
-    def get_var(self, initial_value, name, var_name, var_trainable=True):
+    def get_var(self, initial_value, name, var_name, shape ,var_trainable=True):
         """
         :param initial_value:
         :param name:
@@ -34,32 +34,35 @@ class Darknet53:
             raise ValueError('From scratch train feature extractor or provide complete weights')
 
         if self.trainable and var_trainable:
-            var = tf.Variable(value, name=var_name)
+            var = tf.get_variable(name=var_name, shape = shape, initializer = tf.contrib.layers.xavier_initializer(), trainable = self.trainable)
+#            var = tf.Variable(value, name=var_name)
         elif self.trainable:
-            var = tf.Variable(value, name=var_name, trainable=False)
+            var = tf.get_variable(name=var_name, shape = shape, initializer = tf.contrib.layers.xavier_initializer(), trainable = self.trainable)
+            #var = tf.Variable(value, name=var_name, trainable=False)
             self.avg_var.append(var)
         else:
-            var = tf.const(value, dtype=tf.float32, name=var_name)
+            var = tf.get_variable(name=var_name, shape = shape, initializer = tf.contrib.layers.xavier_initializer(), trainable = self.trainable)
+            #var = tf.const(value, dtype=tf.float32, name=var_name)
         return var
 
     def get_conv_var(self, filter_size, in_channels, out_channels, name):
         initial_value = tf.truncated_normal([filter_size, filter_size, in_channels, out_channels], 0.0, 0.001)
-        filters = self.get_var(initial_value, name, 'conv_weights')
+        filters = self.get_var(initial_value, name, 'conv_weights', [filter_size, filter_size, in_channels, out_channels])
 
         return filters
 
     def get_conv_bn_var(self, out_channels, name):
         initial_value = tf.truncated_normal([out_channels], .0, .001)
-        beta = self.get_var(initial_value, name, 'bias')
+        beta = self.get_var(initial_value, name, 'bias', [out_channels])
 
         initial_value = tf.truncated_normal([out_channels], .0, .001)
-        gamma = self.get_var(initial_value, name, 'gamma')
+        gamma = self.get_var(initial_value, name, 'gamma', [out_channels])
 
         initial_value = tf.truncated_normal([out_channels], .0, .001)
-        mean = self.get_var(initial_value, name, 'mean', var_trainable=False)
+        mean = self.get_var(initial_value, name, 'mean', [out_channels], var_trainable=False)
 
         initial_value = tf.truncated_normal([out_channels], .0, .001)
-        variance = self.get_var(initial_value, name, 'variance', var_trainable=False)
+        variance = self.get_var(initial_value, name, 'variance', [out_channels], var_trainable=False)
         return beta, gamma, mean, variance
 
     def conv_layer(self, bottom, size, stride, in_channels, out_channels, name):
@@ -87,14 +90,18 @@ class Darknet53:
     def build(self, img, istraining, decay_bn=0.99):
         self.phase_train = istraining
         self.decay_bn = decay_bn
-        print("darknet")
-        print(img.shape)
+
+        print("build start")
+
         self.conv0 = self.conv_layer(bottom=img, size=3, stride=1, in_channels=3,   # 416x3
                                      out_channels=32, name='conv_0')                # 416x32
+        print(self.conv0)
         self.conv1 = self.conv_layer(bottom=self.conv0, size=3, stride=2, in_channels=32,
                                      out_channels=64, name='conv_1')                # 208x64
+        print(self.conv1)
         self.conv2 = self.conv_layer(bottom=self.conv1, size=1, stride=1, in_channels=64,
                                      out_channels=32, name='conv_2')                # 208x32
+        print(self.conv2)
         self.conv3 = self.conv_layer(bottom=self.conv2, size=3, stride=1, in_channels=32,
                                      out_channels=64, name='conv_3')                # 208x64
         self.res0 = self.conv3 + self.conv1                                         # 208x64
@@ -201,8 +208,8 @@ class Darknet53:
         self.conv45 = self.conv_layer(bottom=self.conv44, size=3, stride=1, in_channels=512,
                                       out_channels=1024, name='conv_45')            # 13x1024
         self.res19 = self.conv45 + self.conv43                                      # 13x1024
-        self.conv46 = self.conv_layer(bottom=self.res19, size=1, stride=1, in_channels=1024,
-                                      out_channels=512, name='conv_46')             # 13x512
+#        self.conv46 = self.conv_layer(bottom=self.res19, size=1, stride=1, in_channels=1024,
+#                                      out_channels=512, name='conv_46')             # 13x512
         self.conv47 = self.conv_layer(bottom=self.conv44, size=3, stride=1, in_channels=512,
                                       out_channels=1024, name='conv_47')            # 13x1024
         self.res20 = self.conv47 + self.res19                                       # 13x1024
@@ -216,4 +223,7 @@ class Darknet53:
         self.conv51 = self.conv_layer(bottom=self.conv50, size=3, stride=1, in_channels=512,
                                       out_channels=1024, name='conv_51')            # 13x1024
         self.res23 = self.conv51 + self.res21                                       # 13x1024
+
+        print("build done")
+
         return self.res23

@@ -10,7 +10,7 @@ __C.anchors = np.array([[10, 13], [16, 30], [33, 23], [30, 61], [62, 45], [59, 1
 __C.classes = 20
 __C.num = 9
 __C.num_anchors_per_layer = 3
-__C.batch_size = 8
+__C.batch_size = 1
 __C.scratch = False
 __C.names = ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
            "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]

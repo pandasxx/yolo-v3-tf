@@ -64,7 +64,12 @@ class yolov3:
             loss3 = objectness_loss + cord_loss
 
         self.loss = loss1 + loss2 + loss3
-        return self.loss
+
+        tf.add_to_collection('losses', self.loss)
+
+        # The total loss is defined as the cross entropy loss plus all of the weight
+        # decay terms (L2 loss).
+        return tf.add_n(tf.get_collection('losses'), name='total_loss')
 
     def pedict(self, img_hw, iou_threshold=0.5, score_threshold=0.5):
         """
