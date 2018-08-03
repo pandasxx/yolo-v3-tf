@@ -15,7 +15,6 @@ class yolov3:
         with tf.variable_scope("Feature_Extractor"):
             feature_extractor = Darknet53(cfg.path.darknet_weights_path, scratch=cfg.scratch)
             self.feats52 = feature_extractor.build(self.img, self.istraining, self.decay_bn)
-            self.test = feature_extractor.res19
         with tf.variable_scope("Head"):
             head = yolo_head(self.istraining)
             self.yolo123, self.yolo456, self.yolo789 = head.build(self.feats52,
@@ -68,12 +67,9 @@ class yolov3:
 
         tf.add_to_collection('losses', self.loss)
 
-        # for multigpu test
-        tf.add_to_collection('feats52', self.test)
-
         # The total loss is defined as the cross entropy loss plus all of the weight
         # decay terms (L2 loss).
-        return tf.add_n(tf.get_collection('losses'), name='total_loss'), tf.add_n(tf.get_collection('feats52'), name='total_feats52')
+        return tf.add_n(tf.get_collection('losses'), name='total_loss')
 
     def pedict(self, img_hw, iou_threshold=0.5, score_threshold=0.5):
         """

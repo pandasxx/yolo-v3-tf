@@ -1,6 +1,6 @@
 /*/ckpt
-/*/font
 /*/.ipynb_checkpoints
+/*/font
 *.pyc
 *.npz
 *.jpg
