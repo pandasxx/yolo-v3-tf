@@ -96,13 +96,10 @@ class Darknet53:
 
         self.conv0 = self.conv_layer(bottom=img, size=3, stride=1, in_channels=3,   # 416x3
                                      out_channels=32, name='conv_0')                # 416x32
-        print(self.conv0)
         self.conv1 = self.conv_layer(bottom=self.conv0, size=3, stride=2, in_channels=32,
                                      out_channels=64, name='conv_1')                # 208x64
-        print(self.conv1)
         self.conv2 = self.conv_layer(bottom=self.conv1, size=1, stride=1, in_channels=64,
                                      out_channels=32, name='conv_2')                # 208x32
-        print(self.conv2)
         self.conv3 = self.conv_layer(bottom=self.conv2, size=3, stride=1, in_channels=32,
                                      out_channels=64, name='conv_3')                # 208x64
         self.res0 = self.conv3 + self.conv1                                         # 208x64

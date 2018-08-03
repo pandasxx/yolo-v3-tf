@@ -63,6 +63,11 @@ __C.data.img_size = [608, 608, 3]
 #
 
 __C.path = edict()
-__C.path.train_data_path = "enhancement01_608.tfrecords"
+__C.path.train_data_path = ["/home/sakulaki/dataset/tfrecord_files/tct_data608_0716_5classes_rotated_0.tfrecords",
+											"/home/sakulaki/dataset/tfrecord_files/tct_data608_0716_5classes_rotated_1.tfrecords",
+											"/home/sakulaki/dataset/tfrecord_files/tct_data608_0716_5classes_rotated_2.tfrecords",
+											"/home/sakulaki/dataset/tfrecord_files/tct_data608_0716_5classes_rotated_3.tfrecords",
+											"/home/sakulaki/dataset/tfrecord_files/tct_data608_0716_5classes_rotated_4.tfrecords",
+											"/home/sakulaki/dataset/tfrecord_files/tct_data608_0716_5classes_rotated_5.tfrecords"]
 __C.path.darknet_weights_path = "../darknet53.conv.74.npz"
 __C.path.ckpt_dir = './ckpt/'

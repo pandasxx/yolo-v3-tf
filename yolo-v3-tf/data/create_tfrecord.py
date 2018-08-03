@@ -50,7 +50,7 @@ def convert_img(image_path):
     image = Image.open(image_path)
     resized_image = image.resize((cfg.data.img_size[0], cfg.data.img_size[1]), Image.BICUBIC)
     image_data = np.array(resized_image, dtype='float32')/255
-    print(image_data.shape)
+    #print(image_data.shape)
     img_raw = image_data.tobytes()
     return img_raw
 
