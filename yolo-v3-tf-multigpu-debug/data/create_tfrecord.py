@@ -74,3 +74,39 @@ for year, image_set in sets:
         writer.write(example.SerializeToString())
 writer.close()
 '''
+
+def make_one_tfrecord_file(images_path, filename, classes):
+    writer = tf.python_io.TFRecordWriter(filename)
+    
+    count = 0
+    for image_path in images_path:
+        if (image_path != ''):
+            xywhc = convert_annotation(image_path, classes)
+            img_raw = convert_img(image_path)
+
+            example = tf.train.Example(features=tf.train.Features(feature={
+                'xywhc':
+                    tf.train.Feature(float_list=tf.train.FloatList(value=xywhc)),
+                'img':
+                    tf.train.Feature(bytes_list=tf.train.BytesList(value=[img_raw])),
+            }))
+        writer.write(example.SerializeToString())
+        count += 1
+        if (count % 1000 == 0):
+            print(count)
+    writer.close()
+
+def make_tfrecord_files(src_path, dst_path, nvme_path, name, classes, num_split = 10000):
+    with open(src_path) as file_object:
+        images_path = (file_object.read()).split("\n")
+
+    tfrecord_file_nums = int(len(images_path) / num_split) + 1
+
+    for i in range(tfrecord_file_nums):
+        filename = os.path.join(nvme_path + name + '_%d' % (i) +'.tfrecords')
+    
+        print('make %d file' % (i))
+        make_one_tfrecord_file(images_path[i*num_split : (i+1) * num_split], filename, classes)
+        print('make %d file done' % (i))
+        os.system("mv" + " " + filename + " " + dst_path)
+        print('move %d file done' % (i))
